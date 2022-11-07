@@ -18,12 +18,13 @@ class Piece(pg.sprite.Group):
                               for k, v in SHAPES[shape]["rot"].items()}
         self.rot = rot
         self.stop = False
+        self.held = False
 
-        for block in self.make_blocks():
+        for block in self.make_blocks(self.x, self.y):
             self.add(block)
 
-    def make_blocks(self):
-        blocks = (Block(self.color, x_off, y_off, x=self.x, y=self.y)
+    def make_blocks(self, x, y):
+        blocks = (Block(self.color, x_off, y_off, x=x, y=y)
                   for x_off, y_off in self.rotation_dict[self.rot])
         return blocks
 
@@ -75,9 +76,6 @@ class Piece(pg.sprite.Group):
     def hard_drop():
         pg.time.set_timer(DROP, 20)
 
-    def hold(self):
-        pass
-
     def valid_rotation(self):
         new_rot = (self.rot + 1) % 4
         test_piece = Piece(self.shape, self.borders, self.stack, rot=new_rot,
@@ -100,7 +98,6 @@ class Piece(pg.sprite.Group):
 
             if pg.sprite.spritecollide(test_block, self.stack, False):
                 return False
-
         return True
 
 
@@ -170,6 +167,8 @@ class Stack(pg.sprite.Group):
     def __init__(self):
         self.row_fullness = {i: 0 for i in reversed(range(0, PLAY_H + PLAY_H_OFF, BOX))}
         super().__init__()
+        self.score = 0
+        self.score_rect = pg.rect.Rect((40, 480), (200, 100))
 
     def add(self, *sprites):
         super().add(*sprites)
@@ -212,8 +211,49 @@ class Stack(pg.sprite.Group):
                 else:
                     fullness[row+count] = fullness[row]
 
+            self.score += SCORE_MULT[no_lines]
+
     def draw_background(self, surface, background):
         surface.blits((background, block.rect, block.rect)
                       for block in self if block.rect.y >= PLAY_H_OFF)
 
 
+class Hold(pg.sprite.Sprite):
+
+    def __init__(self):
+        super().__init__()
+        self.rect = pg.rect.Rect((HOLD_X, HOLD_Y), (4*BOX, 4*BOX))
+
+        self.piece = None
+        self.has_piece = False
+
+    def draw_outline(self, surface, background):
+        self.draw_background(surface, background)
+        pg.draw.rect(surface, (0, 63, 63), self.rect.inflate(10, 10), 5)
+
+    def draw_background(self, surface, background):
+        surface.blit(background, self.rect, self.rect)
+
+    def draw(self, surface):
+        if self.has_piece:
+            self.piece.draw(surface)
+
+    def set_hold(self, piece):
+        self.has_piece = True
+        self.piece = piece
+        self.piece.rot = 0
+        x_off, y_off = 20, 40
+        if piece.shape == "I":
+            x_off, y_off = 0, 60
+        elif piece.shape == "O":
+            x_off, y_off = 40, 40
+
+        self.piece.x = HOLD_X + x_off
+        self.piece.y = HOLD_Y + y_off
+        self.piece.update()
+
+    def get_hold(self, borders, stack):
+        if self.has_piece:
+            piece = Piece(self.piece.shape, borders, stack)
+            piece.held = True
+            return piece
