@@ -1,6 +1,10 @@
 from pytetris.objects import *
 from pytetris.settings import *
 
+# TODO:
+# add ghost piece
+# refactor to more oop
+
 
 def draw_grid(screen):
     for i in range(0, WIN_W, BOX):
