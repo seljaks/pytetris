@@ -1,3 +1,5 @@
+import pygame as pg
+
 PIECES = ["I", "T", "S", "Z", "L", "J", "O"]
 
 SHAPES = {
@@ -79,3 +81,17 @@ SHAPES = {
         }
     }
 }
+WIN_W = 960
+WIN_H = 1005
+WINDOW_SIZE = (WIN_W, WIN_H)
+PLAY_W = 400
+PLAY_H = 800
+PLAY_SIZE = (PLAY_W, PLAY_H)
+GRID_W = 10
+GRID_H = 20
+GRID_SIZE = (GRID_W, GRID_H)
+PLAY_W_OFF = (WIN_W - PLAY_W)//2
+PLAY_H_OFF = 200
+BOX = PLAY_W // GRID_W
+DROP = pg.USEREVENT + 1
+PIECE_STOP = pg.USEREVENT + 2
