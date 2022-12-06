@@ -123,6 +123,8 @@ class PiecePreview:
         self.add_new_bag()
         self.add_new_bag()
 
+        self.new_piece = False
+
         self.rect = pg.rect.Rect((PLAY_W + PLAY_W_OFF + 80, PLAY_H_OFF - 40),
                                  (160, PLAY_H))
 
@@ -155,6 +157,7 @@ class PiecePreview:
 
     def pop(self, borders, stack):
         shape = self.two_bags.pop(0)
+        self.new_piece = True
         return Piece(shape, borders, stack)
 
     def update(self):
